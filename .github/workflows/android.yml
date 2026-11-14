@@ -3,9 +3,6 @@ name: Build RavixSMSBridge APK
 on:
   workflow_dispatch:
   push:
-    paths:
-      - 'RavixSMSBridge-Android-Source.zip'
-      - '.github/workflows/android.yml'
 
 jobs:
   build:
@@ -21,13 +18,15 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Extract Source
         run: |
