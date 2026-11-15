@@ -27,31 +27,18 @@ jobs:
           packages: 'platform-tools'
 
       - name: Install Android SDK packages
-        run: |
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
+        run: sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
 
       - name: Extract source
-        run: |
-          unzip -q RavixSMSBridge-Android-Source.zip -d source
-
-      - name: Locate Android project
-        id: project
-        run: |
-          PROJECT_DIR="$(find source -type f \\( -name settings.gradle -o -name settings.gradle.kts \\) -print -quit | xargs -r dirname)"
-          if [ -z "$PROJECT_DIR" ]; then
-            echo "Could not find settings.gradle in extracted ZIP."
-            find source -maxdepth 4 -type f | head -100
-            exit 1
-          fi
-          echo "dir=$PROJECT_DIR" >> "$GITHUB_OUTPUT"
+        run: unzip -q RavixSMSBridge-Android-Source.zip -d source
 
       - name: Build debug APK
-        working-directory: ${{ steps.project.outputs.dir }}
+        working-directory: source/RavixSMSBridge
         run: gradle assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: RavixSMSBridge-APK
-          path: ${{ steps.project.outputs.dir }}/app/build/outputs/apk/debug/app-debug.apk
+          path: source/RavixSMSBridge/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
